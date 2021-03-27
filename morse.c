@@ -81,7 +81,7 @@ static void ASCII_string_to_morse_string(uint8_t *ascii_string, uint8_t ascii_st
         *output_buffer |= (partial_letter << 0);
         output_buffer++;
         
-        remainder_letter = ((work_letter.letter_code - partial_letter) >> remainder);
+        remainder_letter = (work_letter.letter_code - (partial_letter << (remainder)));
         bit_counter = 32;
         bit_counter -= remainder;
         *output_buffer |= (remainder_letter << work_letter.letter_size);
@@ -90,6 +90,7 @@ static void ASCII_string_to_morse_string(uint8_t *ascii_string, uint8_t ascii_st
       if(bit_counter == 0)
       {
         bit_counter = 32;
+        output_buffer++;
       }
       else
       {
