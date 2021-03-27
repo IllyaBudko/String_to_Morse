@@ -1,6 +1,6 @@
 #include "morse.h"
 
-static void ASCII_string_to_morse_string(uint8_t *ascii_string, volatile uint8_t ascii_string_size, uint32_t *output_buffer, uint8_t output_buffer_size);
+static void ASCII_string_to_morse_string(uint8_t *ascii_string, uint8_t ascii_string_size, uint32_t *output_buffer, uint8_t output_buffer_size);
 
 typedef struct letter_template_t
 {
@@ -38,9 +38,8 @@ static const morse_letter morse_alphabet[] =
     {0x1D77,13},    //Y
     {0x775 ,11},    //Z
   };
-  
-uint32_t morse_output_buffer[256] =  {0};
-static void ASCII_string_to_morse_string(uint8_t *ascii_string, volatile uint8_t ascii_string_size, uint32_t *output_buffer, uint8_t output_buffer_size)
+
+static void ASCII_string_to_morse_string(uint8_t *ascii_string, uint8_t ascii_string_size, uint32_t *output_buffer, uint8_t output_buffer_size)
 {
   uint8_t bit_counter = 31;
   morse_letter work_letter;
@@ -55,9 +54,9 @@ static void ASCII_string_to_morse_string(uint8_t *ascii_string, volatile uint8_t
       }
       else
       {
-        uint8_t tmp = 7 - bit_counter;
+        uint8_t remainder = 7 - bit_counter;
         bit_counter = 31;
-        bit_counter -= tmp;
+        bit_counter -= remainder;
       }
     }
     /*statement check if character is within range of ascii A to Z*/
@@ -68,26 +67,39 @@ static void ASCII_string_to_morse_string(uint8_t *ascii_string, volatile uint8_t
       if(bit_counter > work_letter.letter_size)
       {
         bit_counter -= work_letter.letter_size;
-        *output_buffer |= (work_letter.letter_code << work_letter.letter_size);
+        *output_buffer |= (work_letter.letter_code << bit_counter);
       }
       else
       {
-        uint8_t tmp = work_letter.letter_size - bit_counter;
+        uint8_t remainder = 0;
+        uint32_t partial_letter = 0;
+        uint32_t remainder_letter = 0;
+        
+        remainder = (work_letter.letter_size - bit_counter);
+        partial_letter = (work_letter.letter_code >> remainder);
+        *output_buffer |= (partial_letter << 0);
+        output_buffer++;
+        
+        remainder_letter = ((work_letter.letter_code - partial_letter) >> remainder);
         bit_counter = 31;
-        bit_counter -= tmp;
+        bit_counter -= remainder;
+        *output_buffer |= (remainder_letter << work_letter.letter_size);
       }
     }
     else
     {
-      //temorary stuff
-      while(1);
+      //null terminator detected
+      break;
     }
     ascii_string++;
     ascii_string_size--;
   }
 }
 
-
+void TEST_ASCII_string_to_morse_string(uint8_t *ascii_string, uint8_t ascii_string_size, uint32_t *output_buffer, uint8_t output_buffer_size)
+{
+  ASCII_string_to_morse_string(ascii_string, ascii_string_size, output_buffer, output_buffer_size);
+}
 
 
 

@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+#include "morse.h"
+
 
 
 #endif /*_MAIN_H_*/
