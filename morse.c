@@ -41,7 +41,7 @@ static const morse_letter morse_alphabet[] =
 
 static void ASCII_string_to_morse_string(uint8_t *ascii_string, uint8_t ascii_string_size, uint32_t *output_buffer, uint8_t output_buffer_size)
 {
-  uint8_t bit_counter = 31;
+  uint8_t bit_counter = 32;
   morse_letter work_letter;
   while(sizeof(ascii_string_size) != 0)
   {
@@ -55,7 +55,7 @@ static void ASCII_string_to_morse_string(uint8_t *ascii_string, uint8_t ascii_st
       else
       {
         uint8_t remainder = 7 - bit_counter;
-        bit_counter = 31;
+        bit_counter = 32;
         bit_counter -= remainder;
       }
     }
@@ -75,15 +75,25 @@ static void ASCII_string_to_morse_string(uint8_t *ascii_string, uint8_t ascii_st
         uint32_t partial_letter = 0;
         uint32_t remainder_letter = 0;
         
+        //test code from here
         remainder = (work_letter.letter_size - bit_counter);
-        partial_letter = (work_letter.letter_code >> remainder);
+        partial_letter = (work_letter.letter_code >> (32 - remainder));
         *output_buffer |= (partial_letter << 0);
         output_buffer++;
         
         remainder_letter = ((work_letter.letter_code - partial_letter) >> remainder);
-        bit_counter = 31;
+        bit_counter = 32;
         bit_counter -= remainder;
         *output_buffer |= (remainder_letter << work_letter.letter_size);
+        //to here
+      }
+      if(bit_counter == 0)
+      {
+        bit_counter = 32;
+      }
+      else
+      {
+        bit_counter--;
       }
     }
     else
