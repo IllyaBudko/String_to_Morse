@@ -48,15 +48,15 @@ static void ASCII_string_to_morse_string(uint8_t *ascii_string, uint8_t ascii_st
     /*statement checks if character is a space*/
     if(*ascii_string == 0x20)
     {
-      if(bit_counter > 7)
+      if(bit_counter > 4)
       {
-        bit_counter -= 7;
+        bit_counter -= 4;
       }
       else
       {
         uint8_t remainder = 7 - bit_counter;
-        bit_counter = 32;
-        bit_counter -= remainder;
+        bit_counter = 32 - remainder;
+        output_buffer++;
       }
     }
     /*statement check if character is within range of ascii A to Z*/
@@ -75,26 +75,23 @@ static void ASCII_string_to_morse_string(uint8_t *ascii_string, uint8_t ascii_st
         uint32_t partial_letter = 0;
         uint32_t remainder_letter = 0;
         
-        //test code from here
         remainder = (work_letter.letter_size - bit_counter);
         partial_letter = (work_letter.letter_code >> remainder);
         *output_buffer |= (partial_letter << 0);
         output_buffer++;
         
         remainder_letter = (work_letter.letter_code - (partial_letter << (remainder)));
-        bit_counter = 32;
-        bit_counter -= remainder;
+        bit_counter = 32 - remainder;
         *output_buffer |= (remainder_letter << (32 - remainder));
-        //to here
       }
       if(bit_counter == 0)
       {
-        bit_counter = 32;
+        bit_counter = 29;
         output_buffer++;
       }
       else
       {
-        bit_counter--;
+        bit_counter -= 3;
       }
     }
     else
